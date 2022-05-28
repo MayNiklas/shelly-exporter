@@ -1,0 +1,1 @@
+# shelly-plug-s-prometheus-exporter
