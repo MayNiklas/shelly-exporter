@@ -28,7 +28,7 @@
               pname = "shelly_exporter";
               version = "1.0.0";
 
-              propagatedBuildInputs = [ requests ];
+              propagatedBuildInputs = [ prometheus-client ];
               src = self;
 
               installCheckPhase = ''
