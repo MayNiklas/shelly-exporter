@@ -15,9 +15,13 @@ def process_request(t):
     time.sleep(t)
 
 
-if __name__ == '__main__':
+def main():
     # Start up the server to expose the metrics.
     start_http_server(8000)
     # Generate some requests.
     while True:
         process_request(random.random())
+
+
+if __name__ == '__main__':
+    main()

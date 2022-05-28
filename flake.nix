@@ -29,6 +29,7 @@
               version = "1.0.0";
 
               propagatedBuildInputs = [ prometheus-client ];
+              doCheck = false;
               src = self;
 
               installCheckPhase = ''
