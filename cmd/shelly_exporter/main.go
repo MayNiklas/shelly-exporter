@@ -1,4 +1,4 @@
-package main
+package shelly_exporter
 
 import (
 	"encoding/json"
@@ -161,7 +161,7 @@ func init() {
 	prometheus.MustRegister(shelly_update_available)
 }
 
-func main() {
+func Run() {
 	recordMetrics()
 
 	http.Handle("/metrics", promhttp.Handler())

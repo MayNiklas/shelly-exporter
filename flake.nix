@@ -40,7 +40,7 @@
               serviceConfig = mkMerge [{
                 User = cfg.user;
                 Group = cfg.group;
-                ExecStart = "${self.packages."${pkgs.system}".shelly_exporter}/bin/shelly_exporter";
+                ExecStart = "${self.packages."${pkgs.system}".shelly_exporter}/bin/shelly-plug-s-prometheus-exporter";
                 Restart = "on-failure";
               }];
             };
@@ -75,10 +75,9 @@
           default = shelly_exporter;
 
           shelly_exporter = pkgs.buildGoModule rec {
-            pname = "shelly_exporter";
+            pname = "shelly-plug-s-prometheus-exporter";
             version = "1.0.0";
             src = ./.;
-            subPackages = [ "cmd/shelly_exporter" ];
             vendorSha256 =
               "sha256-IBgntTSqgjvi6ddOLenB1rS+Pfs3MKZfn8OnAWUYgkk=";
             meta = with pkgs.lib; {
