@@ -70,8 +70,9 @@
       rec {
 
         formatter = pkgs.nixpkgs-fmt;
-        defaultPackage = packages.shelly_exporter;
         packages = flake-utils.lib.flattenTree rec {
+
+          default = shelly_exporter;
 
           shelly_exporter = pkgs.buildGoModule rec {
             pname = "shelly_exporter";
