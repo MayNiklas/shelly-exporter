@@ -1,9 +1,10 @@
 { pkgs ? import <nixpkgs> { } }:
 with pkgs;
 mkShell {
-  buildInputs = [ go gcc ];
+  buildInputs = [ go_1_17 gcc ];
 
   shellHook = ''
-    # ...
+    go run main.go
+    exit
   '';
 }
