@@ -1,6 +1,7 @@
 package shelly_exporter
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -114,7 +115,29 @@ func Run() {
 	recordMetrics()
 
 	http.Handle("/metrics", promhttp.Handler())
+	http.HandleFunc("/probe", func(w http.ResponseWriter, req *http.Request) {
+		probeHandler(w, req)
+	})
+
 	log.Fatal(http.ListenAndServe(*addr, nil))
+}
+
+func probeHandler(w http.ResponseWriter, r *http.Request) {
+
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+	r = r.WithContext(ctx)
+
+	target := r.URL.Query().Get("target")
+	if target == "" {
+		http.Error(w, "Target parameter is missing", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("Probing: ", target)
+	h := promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{})
+	h.ServeHTTP(w, r)
+
 }
 
 func init() {
