@@ -6,8 +6,8 @@
   outputs = { self, nixpkgs, flake-utils, ... }:
 
     {
-
-      nixosModule.shelly_exporter = ({ pkgs, ... }: {
+      nixosModules.default = self.nixosModules.shelly_exporter;
+      nixosModules.shelly_exporter = ({ pkgs, ... }: {
         imports = [ ./default.nix ];
         nixpkgs.overlays = [
           (_self: _super: {
@@ -21,8 +21,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = nixpkgs.legacyPackages.${system};
 
-      in
-      rec {
+      in rec {
 
         formatter = pkgs.nixpkgs-fmt;
         defaultPackage = packages.shelly_exporter;
