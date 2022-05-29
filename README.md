@@ -1,11 +1,9 @@
 # shelly_exporter
 A Shelly Plug S Prometeus exporter written in golang.
 
-WORK IN PROGRESS!
-
 ## How to execute
 
-Metrics will be exposed on: http://localhost:8080/metrics
+Metrics will be exposed on: http://localhost:8080/probe?target=<shelly_ip>
 
 ### Nix / NixOS
 This repository contains a `flake.nix` file.
