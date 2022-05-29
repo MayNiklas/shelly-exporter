@@ -5,6 +5,8 @@ WORK IN PROGRESS!
 
 ## How to execute
 
+Metrics will be exposed on: http://localhost:8080/metrics
+
 ### Nix / NixOS
 This repository contains a `flake.nix` file.
 ```sh
