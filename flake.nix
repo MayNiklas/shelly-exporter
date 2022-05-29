@@ -79,7 +79,7 @@
             version = "1.0.0";
             src = ./.;
             vendorSha256 =
-              "sha256-IBgntTSqgjvi6ddOLenB1rS+Pfs3MKZfn8OnAWUYgkk=";
+              "sha256-/iBMltdd6JtVw17HQBD0+FQdhfv8FMgME0KeoYblTUI=";
             meta = with pkgs.lib; {
               description = "prometheus exporter for shelly plug s";
               homepage =
