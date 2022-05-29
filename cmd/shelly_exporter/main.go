@@ -108,6 +108,23 @@ var (
 	})
 )
 
+func Run() {
+	recordMetrics()
+
+	http.Handle("/metrics", promhttp.Handler())
+	fmt.Println("Hello world from new Go Collector!")
+	log.Fatal(http.ListenAndServe(*addr, nil))
+}
+
+func init() {
+	// Metrics have to be registered to be exposed:
+	prometheus.MustRegister(shelly_power_current)
+	prometheus.MustRegister(shelly_power_total)
+	prometheus.MustRegister(shelly_uptime)
+	prometheus.MustRegister(shelly_temperature)
+	prometheus.MustRegister(shelly_update_available)
+}
+
 func recordMetrics() {
 	go func() {
 		for {
@@ -150,21 +167,4 @@ func requestShelly() {
 	} else {
 		shelly_update_available.Set(0)
 	}
-}
-
-func init() {
-	// Metrics have to be registered to be exposed:
-	prometheus.MustRegister(shelly_power_current)
-	prometheus.MustRegister(shelly_power_total)
-	prometheus.MustRegister(shelly_uptime)
-	prometheus.MustRegister(shelly_temperature)
-	prometheus.MustRegister(shelly_update_available)
-}
-
-func Run() {
-	recordMetrics()
-
-	http.Handle("/metrics", promhttp.Handler())
-	fmt.Println("Hello world from new Go Collector!")
-	log.Fatal(http.ListenAndServe(*addr, nil))
 }
