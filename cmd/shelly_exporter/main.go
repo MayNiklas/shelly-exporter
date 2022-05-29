@@ -119,6 +119,12 @@ func requestShelly() {
 	}
 
 	shelly_power_current.Set(result.Meters[0].Power)
+
+	// shelly_power_total.Set(result.Meters[0].Total) did not work
+	// "cannot use result.Meters[0].Total (variable of type int) as float64 value in argument to shelly_power_total.
+	// SetcompilerIncompatibleAssign"
+	// I'm not 100% sure of the implications of this, but it seems to work.
+	shelly_power_total.Set(float64(result.Meters[0].Total))
 }
 
 func init() {
