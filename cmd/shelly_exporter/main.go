@@ -74,32 +74,6 @@ type shelly_data struct {
 	Uptime   int `json:"uptime"`
 }
 
-func recordMetrics() {
-	go func() {
-		for {
-			opsProcessed.Inc()
-			time.Sleep(5 * time.Second)
-		}
-	}()
-}
-
-func requestShelly() {
-	// Get request
-	resp, err := http.Get("http://192.168.15.2/status")
-	if err != nil {
-		fmt.Println("No response from request")
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body) // response body is []byte
-
-	var result shelly_data
-	if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
-		fmt.Println("Can not unmarshal JSON")
-	}
-
-	fmt.Println(result.Meters)
-}
-
 var (
 	addr = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
 
@@ -119,6 +93,34 @@ var (
 	})
 )
 
+func recordMetrics() {
+	go func() {
+		for {
+			opsProcessed.Inc()
+			requestShelly()
+
+			time.Sleep(5 * time.Second)
+		}
+	}()
+}
+
+func requestShelly() {
+	// Get request
+	resp, err := http.Get("http://192.168.15.2/status")
+	if err != nil {
+		fmt.Println("No response from request")
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body) // response body is []byte
+
+	var result shelly_data
+	if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
+		fmt.Println("Can not unmarshal JSON")
+	}
+
+	shelly_power_current.Set(result.Meters[0].Power)
+}
+
 func init() {
 	// Metrics have to be registered to be exposed:
 	prometheus.MustRegister(shelly_power_current)
@@ -126,7 +128,6 @@ func init() {
 }
 
 func main() {
-	requestShelly()
 	recordMetrics()
 
 	http.Handle("/metrics", promhttp.Handler())
