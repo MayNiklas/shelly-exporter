@@ -109,10 +109,11 @@ var (
 )
 
 func Run() {
+	fmt.Println("Starting Shelly exporter!")
+
 	recordMetrics()
 
 	http.Handle("/metrics", promhttp.Handler())
-	fmt.Println("Hello world from new Go Collector!")
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
 
