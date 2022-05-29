@@ -91,6 +91,11 @@ var (
 		Name: "shelly_power_total",
 		Help: "Total power consumption of shelly.",
 	})
+
+	shelly_uptime = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "shelly_uptime",
+		Help: "Uptime of shelly.",
+	})
 )
 
 func recordMetrics() {
@@ -125,12 +130,15 @@ func requestShelly() {
 	// SetcompilerIncompatibleAssign"
 	// I'm not 100% sure of the implications of this, but it seems to work.
 	shelly_power_total.Set(float64(result.Meters[0].Total))
+
+	shelly_uptime.Set(float64(result.Uptime))
 }
 
 func init() {
 	// Metrics have to be registered to be exposed:
 	prometheus.MustRegister(shelly_power_current)
 	prometheus.MustRegister(shelly_power_total)
+	prometheus.MustRegister(shelly_uptime)
 }
 
 func main() {
