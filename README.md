@@ -1,9 +1,11 @@
 # shelly_exporter
-A Shelly Plug S Prometeus exporter written in Python.
+A Shelly Plug S Prometeus exporter written in golang.
 
 WORK IN PROGRESS!
 
 ## How to execute
+
+Metrics will be exposed on: http://localhost:8080/metrics
 
 ### Nix / NixOS
 This repository contains a `flake.nix` file.
@@ -12,7 +14,7 @@ nix run .#shelly_exporter
 ```
 
 ### Libaries used:
-- https://github.com/prometheus/client_python
+- https://github.com/prometheus/client_golang
 
 ### API documentation:
 - https://shelly-api-docs.shelly.cloud/gen1/#shelly-plug-plugs-status

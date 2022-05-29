@@ -7,8 +7,10 @@ repos:
             files: \.nix$
             language: system
 
-    - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.2.0
+    - repo: local
       hooks:
-          - id: check-ast
-          - id: fix-encoding-pragma
+          - id: gofmt -w
+            name: gofmt -w
+            entry: gofmt -w
+            files: \.go$
+            language: system
