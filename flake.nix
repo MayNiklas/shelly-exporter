@@ -21,7 +21,7 @@
             src = ./.;
             subPackages = [ "cmd/shelly_exporter" ];
             vendorSha256 =
-              "sha256-pQpattmS9VmO3ZIQUFn66az8GSmB4IvYhTTCFn6SUmo=";
+              "sha256-3Yk3pOEN/g6UHSmPtdg13X+fiR4ZsSa/zqlVsuedhPU=";
             meta = with pkgs.lib; {
               description = "prometheus exporter for shelly plug s";
               homepage =
