@@ -19,7 +19,7 @@
             pname = "shelly_exporter";
             version = "1.0.0";
             src = ./.;
-            subPackages = [ "cmd" ];
+            subPackages = [ "cmd/shelly_exporter" ];
             vendorSha256 =
               "sha256-pQpattmS9VmO3ZIQUFn66az8GSmB4IvYhTTCFn6SUmo=";
             meta = with pkgs.lib; {
