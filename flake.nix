@@ -7,21 +7,67 @@
 
     {
       nixosModules.default = self.nixosModules.shelly_exporter;
-      nixosModules.shelly_exporter = ({ pkgs, ... }: {
-        imports = [ ./default.nix ];
-        nixpkgs.overlays = [
-          (_self: _super: {
-            shelly_exporter = self.packages.${pkgs.system}.shelly_exporter;
-          })
-        ];
-      });
+      nixosModules.shelly_exporter = { lib, pkgs, config, ... }:
+        with lib;
 
-    } //
+        let cfg = config.services.shelly-exporter;
+        in
+        {
+
+          options.services.shelly-exporter = {
+
+            enable = mkEnableOption "shelly-exporter";
+
+            user = mkOption {
+              type = types.str;
+              default = "shelly-exporter";
+              description = "User account under which s3photoalbum runs.";
+            };
+
+            group = mkOption {
+              type = types.str;
+              default = "shelly-exporter";
+              description = "Group under which s3photoalbum runs.";
+            };
+
+          };
+
+          config = mkIf cfg.enable {
+
+            systemd.services.shelly-exporter = {
+              description = "A shelly metrics exporter";
+              wantedBy = [ "multi-user.target" ];
+              serviceConfig = mkMerge [{
+                User = cfg.user;
+                Group = cfg.group;
+                ExecStart = "${self.packages."${pkgs.system}".shelly_exporter}/bin/shelly_exporter";
+                Restart = "on-failure";
+              }];
+            };
+
+            users.users = mkIf (cfg.user == "shelly-exporter") {
+              shelly-exporter = {
+                isSystemUser = true;
+                group = cfg.group;
+                description = "shelly-exporter system user";
+              };
+            };
+
+            users.groups =
+              mkIf (cfg.group == "shelly-exporter") { shelly-exporter = { }; };
+
+          };
+          meta = { maintainers = with lib.maintainers; [ mayniklas ]; };
+        };
+    }
+
+    //
 
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = nixpkgs.legacyPackages.${system};
 
-      in rec {
+      in
+      rec {
 
         formatter = pkgs.nixpkgs-fmt;
         defaultPackage = packages.shelly_exporter;
