@@ -18,16 +18,29 @@
 
             enable = mkEnableOption "shelly-exporter";
 
+            port = mkOption {
+              type = types.str;
+              default = "8080";
+              description = "Port under which shelly-exporter is accessible.";
+            };
+
+            listen = mkOption {
+              type = types.str;
+              default = "localhost";
+              example = "127.0.0.1";
+              description = "Address under which shelly-exporter is accessible.";
+            };
+
             user = mkOption {
               type = types.str;
               default = "shelly-exporter";
-              description = "User account under which s3photoalbum runs.";
+              description = "User account under which shelly-exporter runs.";
             };
 
             group = mkOption {
               type = types.str;
               default = "shelly-exporter";
-              description = "Group under which s3photoalbum runs.";
+              description = "Group under which shelly-exporter runs.";
             };
 
           };
@@ -40,7 +53,7 @@
               serviceConfig = mkMerge [{
                 User = cfg.user;
                 Group = cfg.group;
-                ExecStart = "${self.packages."${pkgs.system}".shelly_exporter}/bin/shelly-plug-s-prometheus-exporter";
+                ExecStart = "${self.packages."${pkgs.system}".shelly_exporter}/bin/shelly-plug-s-prometheus-exporter -port ${cfg.port} -listen ${cfg.listen}";
                 Restart = "on-failure";
               }];
             };
