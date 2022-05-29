@@ -101,6 +101,11 @@ var (
 		Name: "shelly_temperature",
 		Help: "Temperature of shelly.",
 	})
+
+	shelly_update_available = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "shelly_update_available",
+		Help: "OTA update is available.",
+	})
 )
 
 func recordMetrics() {
@@ -139,6 +144,12 @@ func requestShelly() {
 	shelly_uptime.Set(float64(result.Uptime))
 
 	shelly_temperature.Set(result.Temperature)
+
+	if result.Update.HasUpdate {
+		shelly_update_available.Set(1)
+	} else {
+		shelly_update_available.Set(0)
+	}
 }
 
 func init() {
@@ -147,6 +158,7 @@ func init() {
 	prometheus.MustRegister(shelly_power_total)
 	prometheus.MustRegister(shelly_uptime)
 	prometheus.MustRegister(shelly_temperature)
+	prometheus.MustRegister(shelly_update_available)
 }
 
 func main() {
