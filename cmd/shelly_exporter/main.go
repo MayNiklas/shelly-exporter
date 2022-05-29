@@ -8,10 +8,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -78,11 +76,6 @@ type shelly_data struct {
 var (
 	addr = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
 
-	opsProcessed = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "myapp_processed_ops_total",
-		Help: "The total number of processed events",
-	})
-
 	shelly_power_current = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "shelly_power_current",
 		Help: "Current power consumption of shelly.",
@@ -112,8 +105,6 @@ var (
 func Run() {
 	fmt.Println("Starting Shelly exporter!")
 
-	recordMetrics()
-
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/probe", func(w http.ResponseWriter, req *http.Request) {
 		probeHandler(w, req)
@@ -128,67 +119,69 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	r = r.WithContext(ctx)
 
+	// get ?target=<ip> parameter from request
 	target := r.URL.Query().Get("target")
 	if target == "" {
 		http.Error(w, "Target parameter is missing", http.StatusBadRequest)
 		return
 	}
 
+	// create registry containing metrics
+	registry := prometheus.NewPedanticRegistry()
+
+	// add metrics to registry
+	registry.MustRegister(shelly_power_current)
+	registry.MustRegister(shelly_power_total)
+	registry.MustRegister(shelly_temperature)
+	registry.MustRegister(shelly_update_available)
+	registry.MustRegister(shelly_uptime)
+
+	// get shelly data from target
 	fmt.Println("Probing: ", target)
-	h := promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{})
-	h.ServeHTTP(w, r)
+	var data shelly_data = getShellyData(target)
 
-}
+	// set metrics
 
-func init() {
-	// Metrics have to be registered to be exposed:
-	prometheus.MustRegister(shelly_power_current)
-	prometheus.MustRegister(shelly_power_total)
-	prometheus.MustRegister(shelly_uptime)
-	prometheus.MustRegister(shelly_temperature)
-	prometheus.MustRegister(shelly_update_available)
-}
+	shelly_power_current.Set(data.Meters[0].Power)
 
-func recordMetrics() {
-	go func() {
-		for {
-			opsProcessed.Inc()
-			requestShelly()
+	// // shelly_power_total.Set(result.Meters[0].Total) did not work
+	// // I'm not 100% sure of the implications of this, but it seems to work.
+	shelly_power_total.Set(float64(data.Meters[0].Total))
 
-			time.Sleep(5 * time.Second)
-		}
-	}()
-}
+	shelly_temperature.Set(data.Temperature)
 
-func requestShelly() {
-	// Get request
-	resp, err := http.Get("http://192.168.15.2/status")
-	if err != nil {
-		fmt.Println("No response from request")
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body) // response body is []byte
-
-	var result shelly_data
-	if err := json.Unmarshal(body, &result); err != nil { // Parse []byte to the go struct pointer
-		fmt.Println("Can not unmarshal JSON")
-	}
-
-	shelly_power_current.Set(result.Meters[0].Power)
-
-	// shelly_power_total.Set(result.Meters[0].Total) did not work
-	// "cannot use result.Meters[0].Total (variable of type int) as float64 value in argument to shelly_power_total.
-	// SetcompilerIncompatibleAssign"
-	// I'm not 100% sure of the implications of this, but it seems to work.
-	shelly_power_total.Set(float64(result.Meters[0].Total))
-
-	shelly_uptime.Set(float64(result.Uptime))
-
-	shelly_temperature.Set(result.Temperature)
-
-	if result.Update.HasUpdate {
+	// check if update is available
+	if data.Update.HasUpdate {
 		shelly_update_available.Set(1)
 	} else {
 		shelly_update_available.Set(0)
 	}
+
+	shelly_uptime.Set(float64(data.Uptime))
+
+	h := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
+	h.ServeHTTP(w, r)
+
+}
+
+// getShellyData returns the data from the shelly device
+func getShellyData(shelly_ip string) shelly_data {
+	resp, err := http.Get("http://" + shelly_ip + "/status")
+
+	if err != nil {
+		fmt.Println("No response from request")
+	}
+
+	defer resp.Body.Close()
+
+	// response body is []byte
+	body, err := ioutil.ReadAll(resp.Body)
+	var result shelly_data
+
+	// Parse []byte to the go struct pointer
+	if err := json.Unmarshal(body, &result); err != nil {
+		fmt.Println("Can not unmarshal JSON")
+	}
+
+	return result
 }
