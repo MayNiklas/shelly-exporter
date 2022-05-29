@@ -74,18 +74,22 @@ type shelly_data struct {
 }
 
 var (
-	addr = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
+	port   = flag.String("port", "8080", "The port to listen on for HTTP requests.")
+	listen = flag.String("listen", "localhost", "The address to listen on for HTTP requests.")
 )
 
 func Run() {
-	fmt.Println("Starting Shelly exporter!")
+	flag.Parse()
+	fmt.Println("Starting Shelly exporter on http://" + *listen + ":" + *port + " ..." + "\n" + "You can request the following endpoints:\n")
+	fmt.Println("curl http://" + *listen + ":" + *port + "/metrics")
+	fmt.Println("curl http://" + *listen + ":" + *port + "/probe?target=<shelly_ip>")
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/probe", func(w http.ResponseWriter, req *http.Request) {
 		probeHandler(w, req)
 	})
 
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	log.Fatal(http.ListenAndServe(":"+*port, nil))
 }
 
 // getShellyData returns the data from the shelly device
