@@ -96,6 +96,11 @@ var (
 		Name: "shelly_uptime",
 		Help: "Uptime of shelly.",
 	})
+
+	shelly_temperature = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "shelly_temperature",
+		Help: "Temperature of shelly.",
+	})
 )
 
 func recordMetrics() {
@@ -132,6 +137,8 @@ func requestShelly() {
 	shelly_power_total.Set(float64(result.Meters[0].Total))
 
 	shelly_uptime.Set(float64(result.Uptime))
+
+	shelly_temperature.Set(result.Temperature)
 }
 
 func init() {
@@ -139,6 +146,7 @@ func init() {
 	prometheus.MustRegister(shelly_power_current)
 	prometheus.MustRegister(shelly_power_total)
 	prometheus.MustRegister(shelly_uptime)
+	prometheus.MustRegister(shelly_temperature)
 }
 
 func main() {
