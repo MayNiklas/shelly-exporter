@@ -200,7 +200,7 @@ func Run() {
 		probeHandler(w, req)
 	})
 
-	log.Fatal(http.ListenAndServe(":"+*port, nil))
+	log.Fatal(http.ListenAndServe(*listen+":"+*port, nil))
 }
 
 // getShellyData returns the data from the shelly device
