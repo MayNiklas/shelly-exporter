@@ -90,9 +90,14 @@
           shelly_exporter = pkgs.buildGoModule rec {
             pname = "shelly-plug-s-prometheus-exporter";
             version = "1.0.0";
-            src = ./.;
+            src = self;
             vendorSha256 =
               "sha256-/iBMltdd6JtVw17HQBD0+FQdhfv8FMgME0KeoYblTUI=";
+            installCheckPhase = ''
+              runHook preCheck
+              $out/bin/shelly-plug-s-prometheus-exporter -h
+              runHook postCheck
+            '';
             meta = with pkgs.lib; {
               description = "prometheus exporter for shelly plug s";
               homepage =
