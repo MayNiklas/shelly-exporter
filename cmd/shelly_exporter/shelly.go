@@ -1,8 +1,58 @@
 package shelly_exporter
 
-import "time"
+import (
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"time"
+)
 
-type shelly_data struct {
+type ShellyData struct {
+	shelly_status
+	// TODO json tag "wifi_sta" is present in both structs and will lead to problems!
+	shelly_settings
+}
+
+func getJson(url string) ([]byte, error) {
+
+	resp, err := http.Get(url)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
+}
+
+func (s *ShellyData) Fetch(address string) error {
+
+	var (
+		statusJson   []byte
+		settingsJson []byte
+		err          error
+	)
+
+	if statusJson, err = getJson("http://" + address + "/status"); err != nil {
+		return err
+	}
+
+	if settingsJson, err = getJson("http://" + address + "/settings"); err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(settingsJson, &s.shelly_settings); err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(statusJson, &s.shelly_status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type shelly_status struct {
 	WifiSta struct {
 		Connected bool   `json:"connected"`
 		Ssid      string `json:"ssid"`

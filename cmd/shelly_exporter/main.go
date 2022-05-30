@@ -2,17 +2,13 @@ package shelly_exporter
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
-	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
-
 
 var (
 	port   = flag.String("port", "8080", "The port to listen on for HTTP requests.")
@@ -21,7 +17,8 @@ var (
 
 func Run() {
 	flag.Parse()
-	fmt.Println("Starting Shelly exporter on http://" + *listen + ":" + *port + " ...")
+
+	log.Println("Starting Shelly exporter on http://" + *listen + ":" + *port + " ...")
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/probe", func(w http.ResponseWriter, req *http.Request) {
@@ -29,49 +26,6 @@ func Run() {
 	})
 
 	log.Fatal(http.ListenAndServe(*listen+":"+*port, nil))
-}
-
-// getShellyData returns the data from the shelly device
-func getShellyData(shelly_ip string) shelly_data {
-	resp, err := http.Get("http://" + shelly_ip + "/status")
-
-	if err != nil {
-		fmt.Println("No response from request")
-	}
-
-	defer resp.Body.Close()
-
-	// response body is []byte
-	body, err := ioutil.ReadAll(resp.Body)
-	var result shelly_data
-
-	// Parse []byte to the go struct pointer
-	if err := json.Unmarshal(body, &result); err != nil {
-		fmt.Println("Can not unmarshal JSON")
-	}
-
-	return result
-}
-
-func getShellySettings(shelly_ip string) shelly_settings {
-	resp, err := http.Get("http://" + shelly_ip + "/settings")
-
-	if err != nil {
-		fmt.Println("No response from request")
-	}
-
-	defer resp.Body.Close()
-
-	// response body is []byte
-	body, err := ioutil.ReadAll(resp.Body)
-	var result shelly_settings
-
-	// Parse []byte to the go struct pointer
-	if err := json.Unmarshal(body, &result); err != nil {
-		fmt.Println("Can not unmarshal JSON")
-	}
-
-	return result
 }
 
 func probeHandler(w http.ResponseWriter, r *http.Request) {
@@ -134,11 +88,15 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	registry.MustRegister(shelly_uptime)
 
 	// get shelly data from target
-	var data shelly_data = getShellyData(target)
-	var settings shelly_settings = getShellySettings(target)
+	var data ShellyData
+	if err := data.Fetch(target); err != nil {
+		// TODO better error handling
+		log.Println(err)
+		return
+	}
 
 	// set metrics
-	shelly_name.With(prometheus.Labels{"name": settings.Name, "hostname": settings.Device.Hostname})
+	shelly_name.With(prometheus.Labels{"name": data.Name, "hostname": data.Device.Hostname})
 	shelly_power_current.Set(data.Meters[0].Power)
 	shelly_power_total.Set(float64(data.Meters[0].Total))
 	shelly_temperature.Set(data.Temperature)
