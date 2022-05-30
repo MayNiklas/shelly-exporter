@@ -6,20 +6,32 @@ import (
 )
 
 func Test_getJson(t *testing.T) {
-	type args struct {
-		url string
-	}
 	tests := []struct {
 		name    string
-		args    args
+		url     string
 		want    []byte
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Test fail",
+			url:  "TODO",
+			want: []byte{
+				//TODO
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test success",
+			url:  "TODO",
+			want: []byte{
+				//TODO
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getJson(tt.args.url)
+			got, err := getJson(tt.url)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getJson() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -32,28 +44,39 @@ func Test_getJson(t *testing.T) {
 }
 
 func TestShellyData_Fetch(t *testing.T) {
-	type fields struct {
-		shelly_status   shelly_status
-		shelly_settings shelly_settings
-	}
-	type args struct {
-		address string
-	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
+		name     string
+		address  string
+		Status   ShellyStatus
+		Settings ShellySettings
+		wantErr  bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:     "Test fail",
+			address:  "127.0.0.1",
+			Settings: ShellySettings{
+				//TODO
+			},
+			Status: ShellyStatus{
+				//TODO
+			},
+			wantErr: true,
+		},
+		{
+			name:     "Test success",
+			address:  "127.0.0.1",
+			Settings: ShellySettings{},
+			Status:   ShellyStatus{},
+			wantErr:  false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &ShellyData{
-				shelly_status:   tt.fields.shelly_status,
-				shelly_settings: tt.fields.shelly_settings,
+				Status:   tt.Status,
+				Settings: tt.Settings,
 			}
-			if err := s.Fetch(tt.args.address); (err != nil) != tt.wantErr {
+			if err := s.Fetch(tt.address); (err != nil) != tt.wantErr {
 				t.Errorf("ShellyData.Fetch() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

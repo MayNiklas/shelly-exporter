@@ -96,14 +96,14 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// set metrics
-	shelly_name.With(prometheus.Labels{"name": data.Name, "hostname": data.Device.Hostname})
-	shelly_power_current.Set(data.Meters[0].Power)
-	shelly_power_total.Set(float64(data.Meters[0].Total))
-	shelly_temperature.Set(data.Temperature)
-	shelly_uptime.Set(float64(data.Uptime))
+	shelly_name.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname})
+	shelly_power_current.Set(data.Status.Meters[0].Power)
+	shelly_power_total.Set(float64(data.Status.Meters[0].Total))
+	shelly_temperature.Set(data.Status.Temperature)
+	shelly_uptime.Set(float64(data.Status.Uptime))
 
 	// check if update is available
-	if data.Update.HasUpdate {
+	if data.Status.Update.HasUpdate {
 		shelly_update_available.Set(1)
 	} else {
 		shelly_update_available.Set(0)
