@@ -14,5 +14,8 @@ nix run .#shelly_exporter
 ### Libaries used:
 - https://github.com/prometheus/client_golang
 
+### Libary documentation:
+- https://pkg.go.dev/github.com/prometheus/client_golang/prometheus
+
 ### API documentation:
 - https://shelly-api-docs.shelly.cloud/gen1/#shelly-plug-plugs-status
