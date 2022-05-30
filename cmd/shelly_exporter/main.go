@@ -193,9 +193,7 @@ var (
 
 func Run() {
 	flag.Parse()
-	fmt.Println("Starting Shelly exporter on http://" + *listen + ":" + *port + " ..." + "\n" + "You can request the following endpoints:\n")
-	fmt.Println("curl http://" + *listen + ":" + *port + "/metrics")
-	fmt.Println("curl http://" + *listen + ":" + *port + "/probe?target=<shelly_ip>")
+	fmt.Println("Starting Shelly exporter on http://" + *listen + ":" + *port + " ...")
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/probe", func(w http.ResponseWriter, req *http.Request) {
@@ -295,14 +293,13 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	registry.MustRegister(shelly_uptime)
 
 	// get shelly data from target
-	fmt.Println("Probing: ", target)
 	var data shelly_data = getShellyData(target)
-	var settings shelly_settings = getShellySettings(target)
 
 	// to do:
 	// return hostname as label to prometheus
-	println(settings.Name)            // Shelly Name (for example: #1 Rack)
-	println(settings.Device.Hostname) // Shelly Hostname (for example: shellyplug-s-EAE4EE )
+	// var settings shelly_settings = getShellySettings(target)
+	// fmt.Println(settings.Name)            // Shelly Name (for example: #1 Rack)
+	// fmt.Println(settings.Device.Hostname) // Shelly Hostname (for example: shellyplug-s-EAE4EE )
 
 	// set metrics
 	shelly_power_current.Set(data.Meters[0].Power)
