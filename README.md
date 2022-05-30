@@ -38,6 +38,44 @@ nix run .#shelly_exporter
   };
 }
 ```
+3. Scrape exporter with Prometheus:
+```nix
+{ lib, pkgs, config, ... }:
+let
+  shellyTargets = [
+    "192.168.0.2"
+    "192.168.0.3"
+    "192.168.0.4"
+    "192.168.0.5"
+    "192.168.0.6"
+    "192.168.0.7"
+  ];
+in {
+  services.prometheus = {
+    enable = true;
+    scrapeConfigs = [{
+      job_name = "shelly";
+      scrape_interval = "10s";
+      metrics_path = "/probe";
+      static_configs = [{ targets = shellyTargets; }];
+      relabel_configs = [
+        {
+          source_labels = [ "__address__" ];
+          target_label = "__param_target";
+        }
+        {
+          source_labels = [ "__param_target" ];
+          target_label = "instance";
+        }
+        {
+          target_label = "__address__";
+          replacement = "127.0.0.1:8080";
+        }
+      ];
+    }];
+  };
+}
+```
 
 ### Libaries used:
 - https://github.com/prometheus/client_golang
