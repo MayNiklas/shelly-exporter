@@ -35,11 +35,11 @@ func (s *ShellyData) Fetch(address string) error {
 		err          error
 	)
 
-	if statusJson, err = getJson("http://" + address + "/status"); err != nil {
+	if statusJson, err = getJson(address + "/status"); err != nil {
 		return err
 	}
 
-	if settingsJson, err = getJson("http://" + address + "/settings"); err != nil {
+	if settingsJson, err = getJson(address + "/settings"); err != nil {
 		return err
 	}
 
