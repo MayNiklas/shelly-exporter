@@ -274,6 +274,13 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 				Name: "shelly_update_available",
 				Help: "OTA update is available.",
 			})
+		shelly_name = prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Name: "shelly_name",
+				Help: "Name of shelly.",
+			},
+			[]string{"name", "hostname"},
+		)
 	)
 
 	ctx, cancel := context.WithCancel(r.Context())
@@ -291,6 +298,7 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	registry := prometheus.NewPedanticRegistry()
 
 	// add metrics to registry
+	registry.MustRegister(shelly_name)
 	registry.MustRegister(shelly_power_current)
 	registry.MustRegister(shelly_power_total)
 	registry.MustRegister(shelly_temperature)
@@ -299,18 +307,15 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// get shelly data from target
 	var data shelly_data = getShellyData(target)
-
-	// to do:
-	// return hostname as label to prometheus
-	// var settings shelly_settings = getShellySettings(target)
-	// fmt.Println(settings.Name)            // Shelly Name (for example: #1 Rack)
-	// fmt.Println(settings.Device.Hostname) // Shelly Hostname (for example: shellyplug-s-EAE4EE )
+	var settings shelly_settings = getShellySettings(target)
 
 	// set metrics
+	shelly_name.With(prometheus.Labels{"name": settings.Name, "hostname": settings.Device.Hostname})
 	shelly_power_current.Set(data.Meters[0].Power)
 	shelly_power_total.Set(float64(data.Meters[0].Total))
 	shelly_temperature.Set(data.Temperature)
 	shelly_uptime.Set(float64(data.Uptime))
+
 	// check if update is available
 	if data.Update.HasUpdate {
 		shelly_update_available.Set(1)
