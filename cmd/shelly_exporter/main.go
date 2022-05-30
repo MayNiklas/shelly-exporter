@@ -249,26 +249,31 @@ func getShellySettings(shelly_ip string) shelly_settings {
 func probeHandler(w http.ResponseWriter, r *http.Request) {
 
 	var (
-		shelly_power_current = prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: "shelly_power_current",
-			Help: "Current power consumption of shelly.",
-		})
-		shelly_power_total = prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: "shelly_power_total",
-			Help: "Total power consumption of shelly.",
-		})
-		shelly_uptime = prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: "shelly_uptime",
-			Help: "Uptime of shelly.",
-		})
-		shelly_temperature = prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: "shelly_temperature",
-			Help: "Temperature of shelly.",
-		})
-		shelly_update_available = prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: "shelly_update_available",
-			Help: "OTA update is available.",
-		})
+		shelly_power_current = prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Name: "shelly_power_current",
+				Help: "Current power consumption of shelly.",
+			})
+		shelly_power_total = prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Name: "shelly_power_total",
+				Help: "Total power consumption of shelly.",
+			})
+		shelly_uptime = prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Name: "shelly_uptime",
+				Help: "Uptime of shelly.",
+			})
+		shelly_temperature = prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Name: "shelly_temperature",
+				Help: "Temperature of shelly.",
+			})
+		shelly_update_available = prometheus.NewGauge(
+			prometheus.GaugeOpts{
+				Name: "shelly_update_available",
+				Help: "OTA update is available.",
+			})
 	)
 
 	ctx, cancel := context.WithCancel(r.Context())
