@@ -297,12 +297,12 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	// get shelly data from target
 	fmt.Println("Probing: ", target)
 	var data shelly_data = getShellyData(target)
+	var settings shelly_settings = getShellySettings(target)
 
-	// get hostname of Shelly
 	// to do:
 	// return hostname as label to prometheus
-	var shelly_hostname string = getShellySettings(target).Device.Hostname
-	println(shelly_hostname)
+	println(settings.Name)            // Shelly Name (for example: #1 Rack)
+	println(settings.Device.Hostname) // Shelly Hostname (for example: shellyplug-s-EAE4EE )
 
 	// set metrics
 	shelly_power_current.Set(data.Meters[0].Power)
