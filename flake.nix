@@ -92,12 +92,13 @@
             version = "1.0.0";
             src = self;
             vendorSha256 =
-              "sha256-/iBMltdd6JtVw17HQBD0+FQdhfv8FMgME0KeoYblTUI=";
+              "sha256-adjCDPsattUqQrGnXGB21CQaowKHaw26rWH4P3rRBM8=";
             installCheckPhase = ''
               runHook preCheck
               $out/bin/shelly-plug-s-prometheus-exporter -h
               runHook postCheck
             '';
+            doCheck = true;
             meta = with pkgs.lib; {
               description = "prometheus exporter for shelly plug s";
               homepage =
