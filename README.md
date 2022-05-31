@@ -1,6 +1,8 @@
 # shelly_exporter
 A Shelly Plug S Prometeus exporter written in golang.
 
+[![Go](https://github.com/MayNiklas/shelly-plug-s-prometheus-exporter/actions/workflows/go.yml/badge.svg)](https://github.com/MayNiklas/shelly-plug-s-prometheus-exporter/actions/workflows/go.yml)
+
 ## How to execute for development purposes
 
 Metrics will be exposed on: http://localhost:8080/probe?target=<shelly_ip>
