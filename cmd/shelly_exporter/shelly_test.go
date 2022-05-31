@@ -3,6 +3,7 @@ package shelly_exporter
 import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"io/ioutil"
 	"reflect"
 	"testing"
 )
@@ -10,6 +11,18 @@ import (
 func Test_getJson(t *testing.T) {
 
 	mockShelly := makeMockShelly("../../tests/settings.json", "../../tests/status.json")
+
+	settingsJsonBytes, err := ioutil.ReadFile("../../tests/settings.json")
+	if err != nil {
+		panic(err)
+	}
+	// settingsJson := string(content)
+
+	statusJsonBytes, err := ioutil.ReadFile("../../tests/status.json")
+	if err != nil {
+		panic(err)
+	}
+	// statusJson := string(content)
 
 	tests := []struct {
 		name    string
@@ -20,23 +33,19 @@ func Test_getJson(t *testing.T) {
 		{
 			name:    "Test fail connection",
 			url:     "http://nowhere.json",
-			want:    []byte{},
+			want:    nil,
 			wantErr: true,
 		},
 		{
 			name: "GET status.json",
-			url:  mockShelly.URL + "/status.json",
-			want: []byte{
-				//TODO
-			},
+			url:  mockShelly.URL + "/status",
+			want: statusJsonBytes,
 			wantErr: false,
 		},
 		{
 			name: "GET settings.json",
-			url:  mockShelly.URL + "/settings.json",
-			want: []byte{
-				//TODO
-			},
+			url:  mockShelly.URL + "/settings",
+			want: settingsJsonBytes,
 			wantErr: false,
 		},
 	}
@@ -44,11 +53,11 @@ func Test_getJson(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := getJson(tt.url)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("getJson() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("getJson(%v) error = %v, wantErr %v", tt.url, err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getJson() = %v, want %v", string(got), string(tt.want))
+				t.Errorf("getJson(%v) = %v, want %v",tt.url, string(got), string(tt.want))
 			}
 		})
 	}
