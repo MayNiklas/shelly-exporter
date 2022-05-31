@@ -33,7 +33,7 @@ func Test_probeHandler(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		expected         string
+		expectedFile     string
 		settingsJsonFile string
 		statusJsonFile   string
 	}{
@@ -41,7 +41,7 @@ func Test_probeHandler(t *testing.T) {
 			name:             "first test",
 			settingsJsonFile: "../../tests/settings.json",
 			statusJsonFile:   "../../tests/status.json",
-			expected:         "ABC",
+			expectedFile:     "../../tests/metrics.prom",
 		},
 	}
 	for _, tt := range tests {
@@ -64,8 +64,14 @@ func Test_probeHandler(t *testing.T) {
 				t.Errorf("Expected error to be nil, got %v", err)
 			}
 
-			if string(data) != tt.expected {
-				t.Errorf("Expected %v, got %v", tt.expected, string(data))
+			content, err := ioutil.ReadFile(tt.expectedFile)
+			if err != nil {
+				panic(err)
+			}
+			metrics := string(content)
+
+			if string(data) != metrics {
+				t.Errorf("Expected %v, got: \n%v", metrics, string(data))
 			}
 		})
 	}
