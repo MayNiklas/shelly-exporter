@@ -18,6 +18,17 @@ func makeMockHandler(filepath string) func(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+func makeMockShelly(settings, status string) *httptest.Server {
+
+	// Create fake server (fake shelly endpoint) that responds json from our
+	// testdata files
+	mux := http.NewServeMux()
+	mux.HandleFunc("/settings", makeMockHandler(settings))
+	mux.HandleFunc("/status", makeMockHandler(status))
+	return httptest.NewServer(mux)
+
+}
+
 func Test_probeHandler(t *testing.T) {
 
 	tests := []struct {
@@ -36,12 +47,7 @@ func Test_probeHandler(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			// Create fake server (fake shelly endpoint) that responds json from our
-			// testdata files
-			mux := http.NewServeMux()
-			mux.HandleFunc("/settings", makeMockHandler(tt.settingsJsonFile))
-			mux.HandleFunc("/status", makeMockHandler(tt.statusJsonFile))
-			mockShellySrv := httptest.NewServer(mux)
+			mockShellySrv := makeMockShelly(tt.settingsJsonFile, tt.statusJsonFile)
 			defer mockShellySrv.Close()
 
 			// Make request to mock server on loopback interface

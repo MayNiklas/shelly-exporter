@@ -2,7 +2,10 @@ module github.com/MayNiklas/shelly-plug-s-prometheus-exporter
 
 go 1.17
 
-require github.com/prometheus/client_golang v1.12.2
+require (
+	github.com/google/go-cmp v0.5.5
+	github.com/prometheus/client_golang v1.12.2
+)
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
