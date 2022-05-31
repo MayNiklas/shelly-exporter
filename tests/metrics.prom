@@ -1,18 +1,15 @@
-# HELP shelly_name Name of shelly.
-# TYPE shelly_name counter
-shelly_name{hostname="shellyplug-s-EAE4EE",name="#1 Rack"} 0
 # HELP shelly_power_current Current power consumption of shelly.
 # TYPE shelly_power_current gauge
-shelly_power_current 173.52
+shelly_power_current{hostname="shellyplug-s-EAE4EE",name="#1 Rack"} 173.52
 # HELP shelly_power_total Total power consumption of shelly.
 # TYPE shelly_power_total gauge
-shelly_power_total 2.4144216e+07
+shelly_power_total{hostname="shellyplug-s-EAE4EE",name="#1 Rack"} 2.4144216e+07
 # HELP shelly_temperature Temperature of shelly.
 # TYPE shelly_temperature gauge
-shelly_temperature 31.44
+shelly_temperature{hostname="shellyplug-s-EAE4EE",name="#1 Rack"} 31.44
 # HELP shelly_update_available OTA update is available.
 # TYPE shelly_update_available gauge
-shelly_update_available 0
+shelly_update_available{hostname="shellyplug-s-EAE4EE",name="#1 Rack"} 0
 # HELP shelly_uptime Uptime of shelly.
 # TYPE shelly_uptime gauge
-shelly_uptime 7.767857e+06
+shelly_uptime{hostname="shellyplug-s-EAE4EE",name="#1 Rack"} 7.767857e+06
