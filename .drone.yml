@@ -33,10 +33,7 @@ clone:
   depth: 1
 
 steps:
-  - name: Run tests
-    commands:
-      - nix run 'nixpkgs#go' -- test -v ./...
-  - name: Run shelly_exporter --help
+  - name: nix run .#shelly_exporter -- -help
     commands:
       - nix run .#shelly_exporter -- -help
 
@@ -53,9 +50,6 @@ clone:
   depth: 1
 
 steps:
-  - name: Run tests
-    commands:
-      - nix run 'nixpkgs#go' -- test -v ./...
-  - name: Run shelly_exporter --help
+  - name: nix run .#shelly_exporter -- -help
     commands:
       - nix run .#shelly_exporter -- -help
