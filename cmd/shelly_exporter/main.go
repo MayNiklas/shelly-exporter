@@ -36,35 +36,35 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 				Name: "shelly_power_current",
 				Help: "Current power consumption of shelly.",
 			},
-			[]string{"name", "hostname"},
+			[]string{"name", "hostname", "ip"},
 		)
 		shelly_power_total = prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Name: "shelly_power_total",
 				Help: "Total power consumption of shelly.",
 			},
-			[]string{"name", "hostname"},
+			[]string{"name", "hostname", "ip"},
 		)
 		shelly_uptime = prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Name: "shelly_uptime",
 				Help: "Uptime of shelly.",
 			},
-			[]string{"name", "hostname"},
+			[]string{"name", "hostname", "ip"},
 		)
 		shelly_temperature = prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Name: "shelly_temperature",
 				Help: "Temperature of shelly.",
 			},
-			[]string{"name", "hostname"},
+			[]string{"name", "hostname", "ip"},
 		)
 		shelly_update_available = prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Name: "shelly_update_available",
 				Help: "OTA update is available.",
 			},
-			[]string{"name", "hostname"},
+			[]string{"name", "hostname", "ip"},
 		)
 	)
 
@@ -98,16 +98,16 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// set metrics
-	shelly_power_current.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname}).Set(data.Status.Meters[0].Power)
-	shelly_power_total.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname}).Set(float64(data.Status.Meters[0].Total))
-	shelly_temperature.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname}).Set(data.Status.Temperature)
-	shelly_uptime.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname}).Set(float64(data.Status.Uptime))
+	shelly_power_current.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(data.Status.Meters[0].Power)
+	shelly_power_total.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(float64(data.Status.Meters[0].Total))
+	shelly_temperature.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(data.Status.Temperature)
+	shelly_uptime.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(float64(data.Status.Uptime))
 
 	// check if update is available
 	if data.Status.Update.HasUpdate {
-		shelly_update_available.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname}).Set(1)
+		shelly_update_available.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(1)
 	} else {
-		shelly_update_available.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname}).Set(0)
+		shelly_update_available.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(0)
 	}
 
 	h := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
