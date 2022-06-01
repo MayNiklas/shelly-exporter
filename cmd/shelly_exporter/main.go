@@ -97,17 +97,20 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// define labels used for all metrics
+	var shelly_labels prometheus.Labels = prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}
+
 	// set metrics
-	shelly_power_current.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(data.Status.Meters[0].Power)
-	shelly_power_total.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(float64(data.Status.Meters[0].Total))
-	shelly_temperature.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(data.Status.Temperature)
-	shelly_uptime.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(float64(data.Status.Uptime))
+	shelly_power_current.With(prometheus.Labels(shelly_labels)).Set(data.Status.Meters[0].Power)
+	shelly_power_total.With(prometheus.Labels(shelly_labels)).Set(float64(data.Status.Meters[0].Total))
+	shelly_temperature.With(prometheus.Labels(shelly_labels)).Set(data.Status.Temperature)
+	shelly_uptime.With(prometheus.Labels(shelly_labels)).Set(float64(data.Status.Uptime))
 
 	// check if update is available
 	if data.Status.Update.HasUpdate {
-		shelly_update_available.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(1)
+		shelly_update_available.With(prometheus.Labels(shelly_labels)).Set(1)
 	} else {
-		shelly_update_available.With(prometheus.Labels{"name": data.Settings.Name, "hostname": data.Settings.Device.Hostname, "ip": data.Status.WifiSta.IP}).Set(0)
+		shelly_update_available.With(prometheus.Labels(shelly_labels)).Set(0)
 	}
 
 	h := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
