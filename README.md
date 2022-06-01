@@ -5,12 +5,33 @@ A Shelly Plug S Prometeus exporter written in golang.
 
 ## How to execute for development purposes
 
-Metrics will be exposed on: http://localhost:8080/probe?target=<shelly_ip>
+Metrics will be exposed on: http://localhost:8080/probe?target=http://<shelly_ip>
 
 ### Nix / NixOS
 This repository contains a `flake.nix` file.
 ```sh
+# run the package
 nix run .#shelly_exporter
+
+# build the package
+nix build .#shelly_exporter
+```
+
+### General
+Make sure [golang](https://go.dev) is installed.
+```sh
+# run application
+go run .
+
+# build application
+go build
+
+# execute tests
+go test -v ./...
+
+# show test coverage
+go test -covermode=count -coverpkg=./... -coverprofile cover.out -v ./...
+go tool cover -html cover.out -o cover.html
 ```
 
 ## How to install
@@ -45,12 +66,12 @@ nix run .#shelly_exporter
 { lib, pkgs, config, ... }:
 let
   shellyTargets = [
-    "192.168.0.2"
-    "192.168.0.3"
-    "192.168.0.4"
-    "192.168.0.5"
-    "192.168.0.6"
-    "192.168.0.7"
+    "http://192.168.0.2"
+    "http://192.168.0.3"
+    "http://192.168.0.4"
+    "http://192.168.0.5"
+    "http://192.168.0.6"
+    "http://192.168.0.7"
   ];
 in {
   services.prometheus = {
