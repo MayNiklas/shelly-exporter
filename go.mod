@@ -1,4 +1,4 @@
-module github.com/MayNiklas/shelly-plug-s-prometheus-exporter
+module github.com/MayNiklas/shelly-exporter
 
 go 1.17
 

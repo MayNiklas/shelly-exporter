@@ -1,8 +1,9 @@
-# shelly_exporter
+# shelly-exporter
 
-A Shelly Plug S Prometeus exporter written in golang.
+A Shelly power metrics exporter written in golang.
+Currently only tested for Shelly Plug S.
 
-[![Go](https://github.com/MayNiklas/shelly-plug-s-prometheus-exporter/actions/workflows/go.yml/badge.svg)](https://github.com/MayNiklas/shelly-plug-s-prometheus-exporter/actions/workflows/go.yml)
+[![Go](https://github.com/MayNiklas/shelly-exporter/actions/workflows/go.yml/badge.svg)](https://github.com/MayNiklas/shelly-exporter/actions/workflows/go.yml)
 
 ## Available metrics
 
@@ -63,8 +64,8 @@ go tool cover -html cover.out -o cover.html
 
 ```nix
 {
-  inputs.shelly-prometheus-exporter = {
-    url = "github:MayNiklas/shelly-plug-s-prometheus-exporter";
+  inputs.shelly-exporter = {
+    url = "github:MayNiklas/shelly-exporter";
     inputs = { nixpkgs.follows = "nixpkgs"; };
   };
 }
@@ -73,9 +74,9 @@ go tool cover -html cover.out -o cover.html
 2. Enable the service in your configuration:
 
 ```nix
-{ shelly-prometheus-exporter, ... }: {
+{ shelly-exporter, ... }: {
 
-  imports = [ shelly-prometheus-exporter.nixosModules.default ];
+  imports = [ shelly-exporter.nixosModules.default ];
 
   services.shelly-exporter = {
     enable = true;

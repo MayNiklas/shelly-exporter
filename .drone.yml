@@ -33,9 +33,9 @@ clone:
   depth: 1
 
 steps:
-  - name: nix run .#shelly_exporter -- -help
+  - name: nix run .#shelly-exporter -- -help
     commands:
-      - nix run .#shelly_exporter -- -help
+      - nix run .#shelly-exporter -- -help
 
 ---
 kind: pipeline
@@ -50,6 +50,6 @@ clone:
   depth: 1
 
 steps:
-  - name: nix run .#shelly_exporter -- -help
+  - name: nix run .#shelly-exporter -- -help
     commands:
-      - nix run .#shelly_exporter -- -help
+      - nix run .#shelly-exporter -- -help

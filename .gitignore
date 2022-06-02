@@ -22,4 +22,4 @@ vendor/
 
 # Go workspace file
 go.work
-shelly-plug-s-prometheus-exporter
+shelly-exporter

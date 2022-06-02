@@ -6,8 +6,8 @@
   outputs = { self, nixpkgs, flake-utils, ... }:
 
     {
-      nixosModules.default = self.nixosModules.shelly_exporter;
-      nixosModules.shelly_exporter = { lib, pkgs, config, ... }:
+      nixosModules.default = self.nixosModules.shelly-exporter;
+      nixosModules.shelly-exporter = { lib, pkgs, config, ... }:
         with lib;
 
         let cfg = config.services.shelly-exporter;
@@ -53,7 +53,7 @@
               serviceConfig = mkMerge [{
                 User = cfg.user;
                 Group = cfg.group;
-                ExecStart = "${self.packages."${pkgs.system}".shelly_exporter}/bin/shelly-plug-s-prometheus-exporter -port ${cfg.port} -listen ${cfg.listen}";
+                ExecStart = "${self.packages."${pkgs.system}".shelly-exporter}/bin/shelly-exporter -port ${cfg.port} -listen ${cfg.listen}";
                 Restart = "on-failure";
               }];
             };
@@ -85,24 +85,24 @@
         formatter = pkgs.nixpkgs-fmt;
         packages = flake-utils.lib.flattenTree rec {
 
-          default = shelly_exporter;
+          default = shelly-exporter;
 
-          shelly_exporter = pkgs.buildGoModule rec {
-            pname = "shelly-plug-s-prometheus-exporter";
+          shelly-exporter = pkgs.buildGoModule rec {
+            pname = "shelly-exporter";
             version = "1.0.0";
             src = self;
             vendorSha256 =
               "sha256-adjCDPsattUqQrGnXGB21CQaowKHaw26rWH4P3rRBM8=";
             installCheckPhase = ''
               runHook preCheck
-              $out/bin/shelly-plug-s-prometheus-exporter -h
+              $out/bin/shelly-exporter -h
               runHook postCheck
             '';
             doCheck = true;
             meta = with pkgs.lib; {
-              description = "prometheus exporter for shelly plug s";
+              description = "prometheus exporter";
               homepage =
-                "https://github.com/MayNiklas/shelly-plug-s-prometheus-exporter";
+                "https://github.com/MayNiklas/shelly-exporter";
               platforms = platforms.unix;
               maintainers = with maintainers; [ mayniklas ];
             };
