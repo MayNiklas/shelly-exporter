@@ -1,11 +1,12 @@
 package shelly_exporter
 
 import (
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"io/ioutil"
 	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func Test_getJson(t *testing.T) {
@@ -37,15 +38,15 @@ func Test_getJson(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "GET status.json",
-			url:  mockShelly.URL + "/status",
-			want: statusJsonBytes,
+			name:    "GET status.json",
+			url:     mockShelly.URL + "/status",
+			want:    statusJsonBytes,
 			wantErr: false,
 		},
 		{
-			name: "GET settings.json",
-			url:  mockShelly.URL + "/settings",
-			want: settingsJsonBytes,
+			name:    "GET settings.json",
+			url:     mockShelly.URL + "/settings",
+			want:    settingsJsonBytes,
 			wantErr: false,
 		},
 	}
@@ -57,7 +58,7 @@ func Test_getJson(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getJson(%v) = %v, want %v",tt.url, string(got), string(tt.want))
+				t.Errorf("getJson(%v) = %v, want %v", tt.url, string(got), string(tt.want))
 			}
 		})
 	}
