@@ -3,6 +3,22 @@ A Shelly Plug S Prometeus exporter written in golang.
 
 [![Go](https://github.com/MayNiklas/shelly-plug-s-prometheus-exporter/actions/workflows/go.yml/badge.svg)](https://github.com/MayNiklas/shelly-plug-s-prometheus-exporter/actions/workflows/go.yml)
 
+## Available metrics
+
+Name     | Description
+---------|------------
+shelly_power_current | Current real AC power being drawn, in Watts
+shelly_power_total | Total energy consumed by the attached electrical appliance in Watt-minute
+shelly_temperature | internal device temperature in °C
+shelly_update_available | Info whether newer firmware version is available
+shelly_uptime | Seconds elapsed since boot
+
+All metrics include the following labels:
+
+* device IP
+* device name
+* device hostname
+
 ## How to execute for development purposes
 
 Metrics will be exposed on: http://localhost:8080/probe?target=http://<shelly_ip>
