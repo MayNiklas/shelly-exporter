@@ -13,6 +13,7 @@ import (
 var (
 	port   = flag.String("port", "8080", "The port to listen on for HTTP requests.")
 	listen = flag.String("listen", "localhost", "The address to listen on for HTTP requests.")
+	data ShellyData
 )
 
 func Run() {
@@ -90,7 +91,6 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	registry.MustRegister(shelly_uptime)
 
 	// get shelly data from target
-	var data ShellyData
 	if err := data.Fetch(target); err != nil {
 		// TODO better error handling
 		log.Println(err)

@@ -39,16 +39,21 @@ func (s *ShellyData) Fetch(address string) error {
 		return err
 	}
 
-	if settingsJson, err = getJson(address + "/settings"); err != nil {
-		return err
-	}
-
-	if err := json.Unmarshal(settingsJson, &s.Settings); err != nil {
-		return err
-	}
-
 	if err := json.Unmarshal(statusJson, &s.Status); err != nil {
 		return err
+	}
+
+	// Only fetch settings, if Name is unset. Fetching settings once is should
+	// be sufficient and save bandwith
+	if len(s.Settings.Name) == 0 {
+
+		if settingsJson, err = getJson(address + "/settings"); err != nil {
+			return err
+		}
+
+		if err := json.Unmarshal(settingsJson, &s.Settings); err != nil {
+			return err
+		}
 	}
 
 	return nil
