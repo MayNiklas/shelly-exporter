@@ -13,7 +13,7 @@ import (
 var (
 	port   = flag.String("port", "8080", "The port to listen on for HTTP requests.")
 	listen = flag.String("listen", "localhost", "The address to listen on for HTTP requests.")
-	data ShellyData
+	data   ShellyData
 )
 
 func Run() {
