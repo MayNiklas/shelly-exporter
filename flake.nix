@@ -18,6 +18,8 @@
 
             enable = mkEnableOption "shelly-exporter";
 
+            configure-prometheus = mkEnableOption "enable shelly-exporter in prometheus";
+
             port = mkOption {
               type = types.str;
               default = "8080";
@@ -29,6 +31,13 @@
               default = "localhost";
               example = "127.0.0.1";
               description = "Address under which shelly-exporter is accessible.";
+            };
+
+            targets = mkOption {
+              type = types.listOf types.str;
+              default = [ "http://192.168.15.2" ];
+              example = [ "http://192.168.15.2" ];
+              description = "Shelly's to monitor";
             };
 
             user = mkOption {
@@ -68,6 +77,30 @@
 
             users.groups =
               mkIf (cfg.group == "shelly-exporter") { shelly-exporter = { }; };
+
+            services.prometheus = mkIf cfg.configure-prometheus {
+              scrapeConfigs = [{
+                job_name = "shelly";
+                scrape_interval = "15s";
+                metrics_path = "/probe";
+                static_configs = [{ targets = cfg.targets; }];
+                relabel_configs = [
+                  {
+                    source_labels = [ "__address__" ];
+                    target_label = "__param_target";
+                  }
+                  {
+                    source_labels = [ "__param_target" ];
+                    target_label = "instance";
+                  }
+                  {
+                    target_label = "__address__";
+                    replacement =
+                      "127.0.0.1:${cfg.port}";
+                  }
+                ];
+              }];
+            };
 
           };
           meta = { maintainers = with lib.maintainers; [ mayniklas ]; };
