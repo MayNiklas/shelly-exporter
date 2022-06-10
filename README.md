@@ -71,7 +71,7 @@ go tool cover -html cover.out -o cover.html
 }
 ```
 
-2. Enable the service in your configuration:
+2. Enable the service & the prometheus scraper in your configuration:
 
 ```nix
 { shelly-exporter, ... }: {
@@ -84,46 +84,16 @@ go tool cover -html cover.out -o cover.html
     listen = "localhost";
     user = "shelly-exporter";
     group = "shelly-exporter";
-  };
-}
-```
 
-3. Scrape exporter with Prometheus:
-
-```nix
-{ lib, pkgs, config, ... }:
-let
-  shellyTargets = [
-    "http://192.168.0.2"
-    "http://192.168.0.3"
-    "http://192.168.0.4"
-    "http://192.168.0.5"
-    "http://192.168.0.6"
-    "http://192.168.0.7"
-  ];
-in {
-  services.prometheus = {
-    enable = true;
-    scrapeConfigs = [{
-      job_name = "shelly";
-      scrape_interval = "10s";
-      metrics_path = "/probe";
-      static_configs = [{ targets = shellyTargets; }];
-      relabel_configs = [
-        {
-          source_labels = [ "__address__" ];
-          target_label = "__param_target";
-        }
-        {
-          source_labels = [ "__param_target" ];
-          target_label = "instance";
-        }
-        {
-          target_label = "__address__";
-          replacement = "127.0.0.1:8080";
-        }
-      ];
-    }];
+    configure-prometheus = true;
+    targets = [
+      "http://192.168.0.2"
+      "http://192.168.0.3"
+      "http://192.168.0.4"
+      "http://192.168.0.5"
+      "http://192.168.0.6"
+      "http://192.168.0.7"
+    ];
   };
 }
 ```
