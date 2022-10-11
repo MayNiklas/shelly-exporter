@@ -23,6 +23,7 @@ jobs:
           install_url: https://github.com/numtide/nix-unstable-installer/releases/download/nix-2.12.0pre20221005_ac0fb38/install
           # Configure Nix to enable flakes
           extra_nix_config: |
+            extra-platforms = aarch64-linux
             experimental-features = nix-command flakes
 
       - name: Register binfmt
