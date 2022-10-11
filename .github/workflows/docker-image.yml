@@ -7,7 +7,7 @@ jobs:
   build-docker:
     strategy:
       matrix:
-        arch: [x86_64, aarch64]
+        arch: [x86_64, i686, aarch64]
 
     runs-on: ubuntu-latest
     steps:
@@ -22,7 +22,7 @@ jobs:
           install_url: https://github.com/numtide/nix-unstable-installer/releases/download/nix-2.12.0pre20221005_ac0fb38/install
           # Configure Nix to enable flakes
           extra_nix_config: |
-            extra-platforms = aarch64-linux
+            extra-platforms = aarch64-linux i686-linux
             experimental-features = nix-command flakes
 
       - name: Register binfmt
@@ -71,6 +71,7 @@ jobs:
           docker manifest create \
           mayniki/shelly-exporter:latest \
           --amend mayniki/shelly-exporter:x86_64-latest \
+          --amend mayniki/shelly-exporter:i686-latest \
           --amend mayniki/shelly-exporter:aarch64-latest
 
       - name: push manifest
