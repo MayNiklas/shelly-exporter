@@ -1,4 +1,4 @@
-name: build and push docker image (release)
+name: tag docker images
 on:
   push:
     # run only against tags
