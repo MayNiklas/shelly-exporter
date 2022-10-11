@@ -147,6 +147,9 @@
           docker-image = pkgs.dockerTools.buildLayeredImage {
             name = "mayniki/shelly-exporter";
             tag = "latest";
+            contents = [
+              self.packages."${pkgs.system}".shelly-exporter
+            ];
             config = {
               Cmd = [ "${self.packages."${pkgs.system}".shelly-exporter}/bin/shelly-exporter" ];
               ExposedPorts = {

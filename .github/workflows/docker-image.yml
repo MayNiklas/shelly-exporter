@@ -10,12 +10,6 @@ jobs:
       - name: setup-docker
         uses: docker-practice/actions-setup-docker@master
 
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          # Nix Flakes doesn't work on shallow clones
-          fetch-depth: 0
-
       - name: Install nix
         uses: cachix/install-nix-action@v12
         with:
@@ -28,10 +22,22 @@ jobs:
       - name: login to docker hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: build & push the image
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          # Nix Flakes doesn't work on shallow clones
+          fetch-depth: 0
+
+      - name: build docker image
         run: |
-          nix build .#docker-image
-          docker load < result
+          docker load < $(nix build .#docker-image)
+
+      - name: execute docker image
+        run: |
+          docker run --rm mayniki/shelly-exporter:latest shelly-exporter -h
+
+      - name: push docker image
+        run: |
           docker tag mayniki/shelly-exporter:latest mayniki/shelly-exporter:amd64-latest
           docker push mayniki/shelly-exporter:amd64-latest
 
