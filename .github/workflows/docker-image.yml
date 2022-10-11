@@ -7,7 +7,7 @@ jobs:
   build-docker:
     strategy:
       matrix:
-        arch: [x86_64]
+        arch: [x86_64, aarch64]
 
     runs-on: ubuntu-latest
     steps:
@@ -68,7 +68,8 @@ jobs:
         run: |
           docker manifest create \
           mayniki/shelly-exporter:latest \
-          --amend mayniki/shelly-exporter:x86_64-latest
+          --amend mayniki/shelly-exporter:x86_64-latest \
+          --amend mayniki/shelly-exporter:aarch64-latest
 
       - name: push manifest
         run: |
