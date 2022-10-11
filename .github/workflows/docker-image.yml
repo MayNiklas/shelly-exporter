@@ -4,7 +4,11 @@ on:
     branches:
       - main
 jobs:
-  build-x86:
+  build-docker:
+    strategy:
+      matrix:
+        arch: [x86_64]
+
     runs-on: ubuntu-latest
     steps:
       - name: setup-docker
@@ -30,7 +34,8 @@ jobs:
 
       - name: build docker image
         run: |
-          docker load < $(nix build .#docker-image)
+          nix build .#packages.${{ matrix.arch }}-linux.docker-image
+          docker load < result
 
       - name: execute docker image
         run: |
@@ -38,11 +43,11 @@ jobs:
 
       - name: push docker image
         run: |
-          docker tag mayniki/shelly-exporter:latest mayniki/shelly-exporter:amd64-latest
-          docker push mayniki/shelly-exporter:amd64-latest
+          docker tag mayniki/shelly-exporter:latest mayniki/shelly-exporter:${{ matrix.arch }}-latest
+          docker push mayniki/shelly-exporter:${{ matrix.arch }}-latest
 
   manifest-create:
-    needs: [build-x86]
+    needs: [build-docker]
     runs-on: ubuntu-latest
     steps:
       - name: setup-docker
@@ -55,7 +60,7 @@ jobs:
         run: |
           docker manifest create \
           mayniki/shelly-exporter:latest \
-          --amend mayniki/shelly-exporter:amd64-latest
+          --amend mayniki/shelly-exporter:x86_64-latest
 
       - name: push manifest
         run: |
