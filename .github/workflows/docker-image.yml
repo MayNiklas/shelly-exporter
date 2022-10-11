@@ -14,8 +14,9 @@ jobs:
       - name: setup-docker
         uses: docker-practice/actions-setup-docker@master
 
+      # https://github.com/cachix/install-nix-action
       - name: Install nix
-        uses: cachix/install-nix-action@v12
+        uses: cachix/install-nix-action@v17
         with:
           nix_path: nixpkgs=channel:nixos-unstable
           install_url: https://github.com/numtide/nix-unstable-installer/releases/download/nix-2.12.0pre20221005_ac0fb38/install
