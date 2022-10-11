@@ -125,7 +125,7 @@
             version = "1.0.0";
             src = self;
             vendorSha256 =
-              "sha256-adjCDPsattUqQrGnXGB21CQaowKHaw26rWH4P3rRBM8=";
+              "sha256-ubVQxyYMpV6ihkod8KrvShKwP6fZJ9DeF51my+rwTmI=";
             installCheckPhase = ''
               runHook preCheck
               $out/bin/shelly-exporter -h
@@ -148,10 +148,7 @@
             name = "mayniki/shelly-exporter";
             tag = "latest";
             config = {
-              Cmd = pkgs.writeScript "cmd" ''
-                #!${pkgs.busybox}/bin/sh
-                ${self.packages."${pkgs.system}".shelly-exporter}/bin/shelly-exporter -port $port -listen $listen
-              '';
+              Cmd = [ "${self.packages."${pkgs.system}".shelly-exporter}/bin/shelly-exporter" ];
               ExposedPorts = {
                 "8080/tcp" = { };
               };

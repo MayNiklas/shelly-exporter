@@ -5,27 +5,50 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
-	port   = flag.String("port", "8080", "The port to listen on for HTTP requests.")
-	listen = flag.String("listen", "localhost", "The address to listen on for HTTP requests.")
+	port   string
+	listen string
+
+	port_flag   = flag.String("port", "8080", "The port to listen on for HTTP requests.")
+	listen_flag = flag.String("listen", "localhost", "The address to listen on for HTTP requests.")
 )
 
 func Run() {
 	flag.Parse()
 
-	log.Println("Starting Shelly exporter on http://" + *listen + ":" + *port + " ...")
+	// getting the port from the environment simplifies running the exporter in a container
+	// for compatibility with the current NixOS module, we also check the command line flags
+
+	// check if port is set via environment variable
+	if port_env := os.Getenv("port"); port_env != "" {
+		log.Println("Using port from environment variable:", port_env)
+		port = port_env
+	} else {
+		port = *port_flag
+	}
+
+	// check if listen address is set via environment variable
+	if listen_env := os.Getenv("listen"); listen_env != "" {
+		log.Println("Using listen address from environment variable:", listen_env)
+		listen = listen_env
+	} else {
+		listen = *listen_flag
+	}
+
+	log.Println("Starting Shelly exporter on http://" + listen + ":" + port + " ...")
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/probe", func(w http.ResponseWriter, req *http.Request) {
 		probeHandler(w, req)
 	})
 
-	log.Fatal(http.ListenAndServe(*listen+":"+*port, nil))
+	log.Fatal(http.ListenAndServe(listen+":"+port, nil))
 }
 
 func probeHandler(w http.ResponseWriter, r *http.Request) {
