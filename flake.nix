@@ -141,6 +141,27 @@
             };
           };
 
+          # Documenation for this feature: https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/docker/examples.nix
+          # nix build .#docker-image
+          # docker load < result
+          docker-image = pkgs.dockerTools.buildLayeredImage {
+            name = "mayniki/shelly-exporter";
+            tag = "latest";
+            config = {
+              Cmd = pkgs.writeScript "cmd" ''
+                #!${pkgs.busybox}/bin/sh
+                ${self.packages."${pkgs.system}".shelly-exporter}/bin/shelly-exporter -port $port -listen $listen
+              '';
+              ExposedPorts = {
+                "8080/tcp" = { };
+              };
+              Env = [
+                "port=8080"
+                "listen=0.0.0.0"
+              ];
+            };
+          };
+
         };
       });
 }

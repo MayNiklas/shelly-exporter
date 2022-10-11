@@ -1,0 +1,56 @@
+name: build and push docker image
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-x86:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup-docker
+        uses: docker-practice/actions-setup-docker@master
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          # Nix Flakes doesn't work on shallow clones
+          fetch-depth: 0
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v12
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          install_url: https://github.com/numtide/nix-unstable-installer/releases/download/nix-2.12.0pre20221005_ac0fb38/install
+          # Configure Nix to enable flakes
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: login to docker hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: build & push the image
+        run: |
+          nix build .#docker-image
+          docker load < result
+          docker tag mayniki/shelly-exporter:latest mayniki/shelly-exporter:amd64-latest
+          docker push mayniki/shelly-exporter:amd64-latest
+
+  manifest-create:
+    needs: [build-x86]
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup-docker
+        uses: docker-practice/actions-setup-docker@master
+
+      - name: login to docker hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: create manifest
+        run: |
+          docker manifest create \
+          mayniki/shelly-exporter:latest \
+          --amend mayniki/shelly-exporter:amd64-latest
+
+      - name: push manifest
+        run: |
+          docker manifest push mayniki/shelly-exporter:latest
