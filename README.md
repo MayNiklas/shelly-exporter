@@ -5,6 +5,10 @@ Currently only tested for Shelly Plug S.
 
 [![Go](https://github.com/MayNiklas/shelly-exporter/actions/workflows/go.yml/badge.svg)](https://github.com/MayNiklas/shelly-exporter/actions/workflows/go.yml)
 
+![Docker Pulls](https://img.shields.io/docker/pulls/mayniki/shelly-exporter)
+![Docker Image Size with architecture (latest by date/latest semver)](https://img.shields.io/docker/image-size/mayniki/shelly-exporter?arch=amd64)
+![Docker Image Version (latest semver)](https://img.shields.io/docker/v/mayniki/shelly-exporter?sort=semver)
+
 ## Available metrics
 
 Name     | Description
@@ -96,6 +100,72 @@ go tool cover -html cover.out -o cover.html
     ];
   };
 }
+```
+
+### Docker
+
+Docker builds for this project are available on [Docker Hub](https://hub.docker.com/r/mayniki/shelly-exporter).
+Currently amd64 and arm64 are supported.
+
+The following environment variables are available:
+
+* `listen` - The address to listen on. Defaults to `8080`
+* `port` - The port to listen on. Defaults to `8080`
+
+Of course, both parameters can be achieved by using a different port forwarding configuration.
+
+```sh
+docker run -d --rm -p 8080:8080 mayniki/shelly-exporter:v1.0.2
+```
+
+For docker-compose, the following configuration can be used:
+
+```yml
+version: "3.9"
+services:
+  shelly-exporter:
+    image: mayniki/shelly-exporter:v1.0.2
+    container_name: shelly-exporter
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+```
+
+After starting the container, all metrics will be available on `http://localhost:8080/probe?target=http://<shelly_ip>`.
+Since the container itself is stateless, all configuration has to be done by your prometheus configuration:
+
+```yml
+- job_name: shelly
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  metrics_path: /probe
+  scheme: http
+  relabel_configs:
+  - source_labels: [__address__]
+    separator: ;
+    regex: (.*)
+    target_label: __param_target
+    replacement: $1
+    action: replace
+  - source_labels: [__param_target]
+    separator: ;
+    regex: (.*)
+    target_label: instance
+    replacement: $1
+    action: replace
+  - separator: ;
+    regex: (.*)
+    target_label: __address__
+    replacement: 127.0.0.1:8080
+    action: replace
+  static_configs:
+  - targets:
+    - http://192.168.0.2
+    - http://192.168.0.3
+    - http://192.168.0.4
+    - http://192.168.0.5
+    - http://192.168.0.6
+    - http://192.168.0.7
 ```
 
 ### Libaries used
