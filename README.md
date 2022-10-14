@@ -7,7 +7,6 @@ Currently only tested for Shelly Plug S.
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/mayniki/shelly-exporter)
 ![Docker Image Size with architecture (latest by date/latest semver)](https://img.shields.io/docker/image-size/mayniki/shelly-exporter?arch=amd64)
-![Docker Image Version (latest semver)](https://img.shields.io/docker/v/mayniki/shelly-exporter?sort=semver)
 
 ## Available metrics
 
