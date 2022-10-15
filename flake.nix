@@ -1,7 +1,10 @@
 {
   description = "prometheus exporter for shelly plug s";
 
-  inputs = { flake-utils.url = "github:numtide/flake-utils"; };
+  inputs = {
+    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  };
 
   outputs = { self, nixpkgs, flake-utils, ... }:
 
@@ -125,7 +128,7 @@
             version = "1.0.0";
             src = self;
             vendorSha256 =
-              "sha256-ubVQxyYMpV6ihkod8KrvShKwP6fZJ9DeF51my+rwTmI=";
+              "sha256-m3DV6OfHOZ+VZugUVft5kFZy0cVohK1KYKWNC9RuGtc=";
             installCheckPhase = ''
               runHook preCheck
               $out/bin/shelly-exporter -h
