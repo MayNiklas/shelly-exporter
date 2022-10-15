@@ -148,21 +148,29 @@
           # nix build .#docker-image
           # docker load < result
           docker-image = pkgs.dockerTools.buildLayeredImage {
+
             name = "mayniki/shelly-exporter";
             tag = "latest";
+
+            # Using "now" breaks reproducibility, the resulting image
+            # will not be identical, but contain a useful timestamp:
+            created = "now";
+
             contents = [
               self.packages."${pkgs.system}".shelly-exporter
             ];
-            config = {
-              Cmd = [ "${self.packages."${pkgs.system}".shelly-exporter}/bin/shelly-exporter" ];
-              ExposedPorts = {
-                "8080/tcp" = { };
-              };
-              Env = [
-                "port=8080"
-                "listen=0.0.0.0"
-              ];
+
+            config.Cmd = [ "${self.packages."${pkgs.system}".shelly-exporter}/bin/shelly-exporter" ];
+
+            config.ExposedPorts = {
+              "8080/tcp" = { };
             };
+
+            config.Env = [
+              "port=8080"
+              "listen=0.0.0.0"
+            ];
+
           };
 
         };
