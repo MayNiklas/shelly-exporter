@@ -2,7 +2,10 @@ name: build docker images
 on:
   push:
     branches:
-      - main
+      - "main"
+    tags:
+      - "v*"
+  workflow_dispatch:
 jobs:
   build-docker:
     strategy:
@@ -11,45 +14,80 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - name: setup-docker
-        uses: docker-practice/actions-setup-docker@master
-
-      # https://github.com/cachix/install-nix-action
-      - name: Install nix
-        uses: cachix/install-nix-action@v17
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-          install_url: https://github.com/numtide/nix-unstable-installer/releases/download/nix-2.12.0pre20221005_ac0fb38/install
-          # Configure Nix to enable flakes
-          extra_nix_config: |
-            extra-platforms = aarch64-linux i686-linux
-            experimental-features = nix-command flakes
-
-      - name: Register binfmt
-        run: |
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-
-      - name: Test binfmt availability
-        run: |
-          cat /proc/sys/fs/binfmt_misc/qemu-aarch64
-
-      - name: login to docker hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
+      # checkout source code from github
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # Nix Flakes doesn't work on shallow clones
           fetch-depth: 0
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            mayniki/shelly-exporter
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            # set latest tag for default branch
+            type=raw,value=latest,enable={{is_default_branch}}
+            # set version tag for git tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+
+      # install nix package manager
+      # https://github.com/cachix/install-nix-action
+      - uses: cachix/install-nix-action@v18
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          # Configure Nix to enable flakes
+          extra_nix_config: |
+            extra-platforms = aarch64-linux i686-linux
+
+      # check if nix flakes is working
+      - run: nix flake check
+
+      # enable qemu for cross-compilation
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      # check if qemu is working
+      - name: Test binfmt availability
+        run: |
+          cat /proc/sys/fs/binfmt_misc/qemu-aarch64
+
+      # build package in this stage
+      # -> makes this workflow fail faster
+      - name: nix build .#shelly-exporter
+        run: |
+          nix build .#packages.${{ matrix.arch }}-linux.shelly-exporter
+
       - name: build docker image
         run: |
           nix build .#packages.${{ matrix.arch }}-linux.docker-image
+
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: load docker image
+        run: |
           docker load < result
+
+      - name: show docker images
+        run: |
+          docker images
 
       - name: execute docker image
         run: |
           docker run --rm mayniki/shelly-exporter:latest shelly-exporter -h
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: push docker image
         run: |
@@ -60,11 +98,14 @@ jobs:
     needs: [build-docker]
     runs-on: ubuntu-latest
     steps:
-      - name: setup-docker
-        uses: docker-practice/actions-setup-docker@master
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: login to docker hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: create manifest
         run: |
@@ -77,3 +118,33 @@ jobs:
       - name: push manifest
         run: |
           docker manifest push mayniki/shelly-exporter:latest
+
+  tag-images:
+    needs: [build-docker]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+
+      - name: create manifest
+        run: |
+          docker manifest create \
+          mayniki/shelly-exporter:${{ steps.vars.outputs.tag }} \
+          --amend mayniki/shelly-exporter:x86_64-latest \
+          --amend mayniki/shelly-exporter:i686-latest \
+          --amend mayniki/shelly-exporter:aarch64-latest
+
+      - name: push manifest
+        run: |
+          docker manifest push mayniki/shelly-exporter:${{ steps.vars.outputs.tag }}
