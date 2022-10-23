@@ -3,10 +3,10 @@
 A Shelly power metrics exporter written in golang.
 Currently only tested for Shelly Plug S.
 
-[![Go](https://github.com/MayNiklas/shelly-exporter/actions/workflows/go.yml/badge.svg)](https://github.com/MayNiklas/shelly-exporter/actions/workflows/go.yml)
+[![go tests](https://github.com/MayNiklas/shelly-exporter/actions/workflows/go-tests.yml/badge.svg?branch=main)](https://github.com/MayNiklas/shelly-exporter/actions/workflows/go-tests.yml)
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/mayniki/shelly-exporter)
-![Docker Image Size with architecture (latest by date/latest semver)](https://img.shields.io/docker/image-size/mayniki/shelly-exporter?arch=amd64)
+![Docker Image Size with architecture (latest by date/latest semver)](https://img.shields.io/docker/image-size/mayniki/shelly-exporter)
 
 ## Available metrics
 
