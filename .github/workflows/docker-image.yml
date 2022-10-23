@@ -1,3 +1,16 @@
+# File written by GitHub user MayNiklas, newer versions can be found in https://github.com/MayNiklas/github-actions
+#
+# GitHub action for building docker images through nix build
+# Images are getting tagged & pushed to Dockerhub
+#
+# File location: .github/workflows/docker_image.yml
+#
+# Create the following GitHub Action secrets:
+#
+# DOCKER_HUB_USERNAME
+# DOCKER_HUB_REPO
+# DOCKER_HUB_ACCESS_TOKEN
+
 name: build docker images
 on:
   push:
@@ -27,7 +40,7 @@ jobs:
         with:
           # list of Docker images to use as base name for tags
           images: |
-            mayniki/shelly-exporter
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}
           # generate Docker tags based on the following events/attributes
           tags: |
             # set latest tag for default branch
@@ -62,7 +75,7 @@ jobs:
       # -> makes this workflow fail faster
       - name: nix build .#shelly-exporter
         run: |
-          nix build .#packages.${{ matrix.arch }}-linux.shelly-exporter
+          nix build .#packages.${{ matrix.arch }}-linux.${{ secrets.DOCKER_HUB_REPO }}
 
       - name: build docker image
         run: |
@@ -81,18 +94,18 @@ jobs:
 
       - name: execute docker image
         run: |
-          docker run --rm mayniki/shelly-exporter:latest shelly-exporter -h
+          docker run --rm ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:latest shelly-exporter -h
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: push docker image
         run: |
-          docker tag mayniki/shelly-exporter:latest mayniki/shelly-exporter:${{ matrix.arch }}-latest
-          docker push mayniki/shelly-exporter:${{ matrix.arch }}-latest
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:latest ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:${{ matrix.arch }}-latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:${{ matrix.arch }}-latest
 
   manifest-create:
     needs: [build-docker]
@@ -104,20 +117,20 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: create manifest
         run: |
           docker manifest create \
-          mayniki/shelly-exporter:latest \
-          --amend mayniki/shelly-exporter:x86_64-latest \
-          --amend mayniki/shelly-exporter:i686-latest \
-          --amend mayniki/shelly-exporter:aarch64-latest
+          "${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:latest" \
+          --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:x86_64-latest \
+          --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:i686-latest \
+          --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:aarch64-latest
 
       - name: push manifest
         run: |
-          docker manifest push mayniki/shelly-exporter:latest
+          docker manifest push "${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:latest"
 
   tag-images:
     needs: [build-docker]
@@ -140,11 +153,11 @@ jobs:
       - name: create manifest
         run: |
           docker manifest create \
-          mayniki/shelly-exporter:${{ steps.vars.outputs.tag }} \
-          --amend mayniki/shelly-exporter:x86_64-latest \
-          --amend mayniki/shelly-exporter:i686-latest \
-          --amend mayniki/shelly-exporter:aarch64-latest
+          ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:${{ steps.vars.outputs.tag }} \
+          --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:x86_64-latest \
+          --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:i686-latest \
+          --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:aarch64-latest
 
       - name: push manifest
         run: |
-          docker manifest push mayniki/shelly-exporter:${{ steps.vars.outputs.tag }}
+          docker manifest push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:${{ steps.vars.outputs.tag }}
