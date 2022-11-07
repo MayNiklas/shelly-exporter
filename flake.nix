@@ -128,7 +128,7 @@
             version = "1.0.0";
             src = self;
             vendorSha256 =
-              "sha256-m3DV6OfHOZ+VZugUVft5kFZy0cVohK1KYKWNC9RuGtc=";
+              "sha256-T5W8A4hM2BECpPeDl5gp+yoqbS2h0LDhfax7cXhP2TU=";
             installCheckPhase = ''
               runHook preCheck
               $out/bin/shelly-exporter -h
