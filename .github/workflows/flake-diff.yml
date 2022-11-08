@@ -1,0 +1,43 @@
+name: show nix flake diff
+on:
+  schedule:
+    - cron: "0 10 * * *"
+  push:
+    branches:
+      - "main"
+jobs:
+  build-package:
+    runs-on: ubuntu-latest
+    steps:
+      # checkout source code from github
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # Nix Flakes doesn't work on shallow clones
+          fetch-depth: 0
+
+      # install nix package manager
+      # https://github.com/cachix/install-nix-action
+      - uses: cachix/install-nix-action@v18
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      # check if nix flakes is working
+      - run: nix flake check
+
+      # build package
+      - name: nix build .#shelly-exporter
+        run: |
+          nix build .#shelly-exporter -o current
+
+      - name: nix flake update
+        run: |
+          nix flake update
+
+      - name: nix build updated .#shelly-exporter
+        run: |
+          nix build .#shelly-exporter -o updated
+
+      - name: compare outputs
+        run: |
+          nix store diff-closures $(readlink -f current) $(readlink -f updated)
