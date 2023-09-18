@@ -29,7 +29,7 @@ jobs:
     steps:
       # checkout source code from github
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Nix Flakes doesn't work on shallow clones
           fetch-depth: 0
