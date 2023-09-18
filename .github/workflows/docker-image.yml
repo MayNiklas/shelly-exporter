@@ -23,7 +23,7 @@ jobs:
   build-docker:
     strategy:
       matrix:
-        arch: [x86_64, i686, aarch64]
+        arch: [x86_64, aarch64]
 
     runs-on: ubuntu-latest
     steps:
@@ -125,7 +125,6 @@ jobs:
           docker manifest create \
           "${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:latest" \
           --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:x86_64-latest \
-          --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:i686-latest \
           --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:aarch64-latest
 
       - name: push manifest
@@ -155,7 +154,6 @@ jobs:
           docker manifest create \
           ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:${{ steps.vars.outputs.tag }} \
           --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:x86_64-latest \
-          --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:i686-latest \
           --amend ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:aarch64-latest
 
       - name: push manifest
