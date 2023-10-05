@@ -131,7 +131,7 @@
                 }:
                 pkgs.buildGoModule rec {
                   pname = "shelly-exporter";
-                  version = "1.0.0";
+                  version = "1.0.6";
                   src = self;
                   inherit vendorSha256;
                   installCheckPhase = ''
