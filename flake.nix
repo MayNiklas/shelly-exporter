@@ -123,26 +123,32 @@
 
           default = shelly-exporter;
 
-          shelly-exporter = pkgs.buildGoModule rec {
-            pname = "shelly-exporter";
-            version = "1.0.0";
-            src = self;
-            vendorSha256 =
-              "sha256-U4M8BEFss1WaoACmnN+cMttSh1PUFNa/RfxkjJIN+6A=";
-            installCheckPhase = ''
-              runHook preCheck
-              $out/bin/shelly-exporter -h
-              runHook postCheck
-            '';
-            doCheck = true;
-            meta = with pkgs.lib; {
-              description = "prometheus exporter";
-              homepage =
-                "https://github.com/MayNiklas/shelly-exporter";
-              platforms = platforms.unix;
-              maintainers = with maintainers; [ mayniklas ];
-            };
-          };
+          shelly-exporter =
+            let
+              package =
+                { vendorSha256 ? "sha256-U4M8BEFss1WaoACmnN+cMttSh1PUFNa/RfxkjJIN+6A="
+                , ...
+                }:
+                pkgs.buildGoModule rec {
+                  pname = "shelly-exporter";
+                  version = "1.0.0";
+                  src = self;
+                  inherit vendorSha256;
+                  installCheckPhase = ''
+                    runHook preCheck
+                    $out/bin/shelly-exporter -h
+                    runHook postCheck
+                  '';
+                  doCheck = true;
+                  meta = with pkgs.lib; {
+                    description = "prometheus exporter";
+                    homepage = "https://github.com/MayNiklas/shelly-exporter";
+                    platforms = platforms.unix;
+                    maintainers = with maintainers; [ mayniklas ];
+                  };
+                };
+            in
+            pkgs.callPackage package { };
 
           # Documenation for this feature: https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/docker/examples.nix
           # nix build .#docker-image

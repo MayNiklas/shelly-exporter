@@ -20,10 +20,13 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Update checksum
         run: |
-          ./scripts/update-vendor-hash.sh
+          failedbuild=$(nix build --impure --expr "((builtins.getFlake \"$(pwd)#\").packages.\${builtins.currentSystem}.shelly-exporter.override { vendorSha256 = \"\"; })" 2>&1 || true)
+          checksum=$(echo "$failedbuild" | awk '/got:.*sha256/ { print $2 }')
+          sed -i -e "s|{ vendorSha256 ? \".*\"|{ vendorSha256 ? \"$checksum\"|" flake.nix
+
           # git push if we have a diff
           if [[ -n $(git diff) ]]; then
-            git add default.nix
+            git add flake.nix
             git config --global user.email "<49699333+dependabot[bot]@users.noreply.github.com>"
             git config --global user.name "dependabot[bot]"
             git commit -m "update vendorHash"
