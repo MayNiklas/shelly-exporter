@@ -64,7 +64,7 @@ jobs:
 
       # enable qemu for cross-compilation
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
       # check if qemu is working
       - name: Test binfmt availability
