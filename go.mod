@@ -3,7 +3,7 @@ module github.com/MayNiklas/shelly-exporter
 go 1.17
 
 require (
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/prometheus/client_golang v1.17.0
 )
 
