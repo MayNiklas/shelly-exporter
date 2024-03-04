@@ -126,7 +126,7 @@
           shelly-exporter =
             let
               package =
-                { vendorSha256 ? "sha256-ZkhGkv3rJLDsDkpQ/cuA6PKt1pMjY5otzmjXxq+/bIk="
+                { vendorSha256 ? "sha256-MZOdrS2NlGa/uCnlhNDEA2mdLhsUvDT52ppoz+TzJNQ="
                 , ...
                 }:
                 pkgs.buildGoModule rec {
